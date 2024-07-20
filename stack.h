@@ -1,8 +1,19 @@
 // We will implement a stack and struct using a linked list data structure
 
 #include <iostream>
+#include <exception>
 
 using namespace std;
+
+// Define exception
+class Underflow : public exception
+{
+    public:
+        const char *what() const throw()
+        {
+            return "Underflow";
+        }
+};
 
 template <typename Object>
 struct Cell {
@@ -11,14 +22,8 @@ struct Cell {
     bool visited;
     
     Cell() : x(0), y(0), L(true), R(true), U(true), D(true), visited(false) {}
-    Cell(T x, T y) : x(x), y(y), L(true), R(true), U(true), D(true), visited(false) {}
+    Cell(Object x, Object y) : x(x), y(y), L(true), R(true), U(true), D(true), visited(false) {}
 };
-
-template <class Object>
-class List;
-
-template <class Object>
-class ListItr;
 
 // Stack class
 template <class Object>
@@ -33,7 +38,7 @@ template <class Object>
             bool isFull() const;
             void makeEmpty();
 
-            void pop() const; // Double check if its constant or not
+            void pop(); // Double check if its constant or not
             void push(const Object & x);
             Object topAndPop();
             const Object & top() const;
@@ -48,13 +53,77 @@ template <class Object>
 
                 ListNode(const Object & theElement, ListNode * n =NULL):element(theElement), next(n) {}
             };
-            
-            friend class List<Object>;
-            friend class ListItr<Object>;
+
             ListNode *topOfStack;
     };
 
-// Consturct the stack
+
+// Lets implement list of stacks
+// We will use linked list to store the stacks
+template <class Object>
+class ListOfStacks
+{
+    public:
+        // We need consturct with given number of stacks
+        ListOfStacks(int numStacks) : head(nullptr) {
+            for (int i = 0; i < numStacks; i++) {
+                addStacktoEnd();
+            }
+        }
+
+        ~ListOfStacks() {
+            while (head != nullptr) {
+                StackNode *temp = head;
+                head = head->next;
+                delete temp;
+            }
+        }
+
+        Stack<Object>* getStackAtIndex(int index) {
+            StackNode *current = head;
+            int count = 0;
+            // Traverse the list until the desired index is reached or the end of the list
+            while (current != nullptr && count < index) {
+                current = current->next;
+                count++;
+            }
+            // Check if we found the stack at the given index
+            if (current == nullptr) {
+                std::cerr << "Stack at index " << index << " DNE." << std::endl;
+                return nullptr;
+            }
+            return current->stack;
+        }
+
+    private:
+        struct StackNode {
+            Stack<Object> *stack;
+            StackNode *next;
+            StackNode(StackNode *n = nullptr) {
+                stack = new Stack<Object>();
+                next = n;
+            }
+            ~StackNode() {
+                delete stack;
+            }
+        };
+        StackNode *head;
+
+        void addStacktoEnd() {
+            StackNode *newNode = new StackNode();
+            if (head == nullptr) {
+                head = newNode;
+            } else {
+                StackNode *current = head;
+                while (current->next != nullptr) {
+                    current = current->next;
+                }
+                current->next = newNode;
+            }
+        }
+};
+
+// Consturcter
 template <class Object>
 Stack<Object>::Stack()
 {
@@ -86,7 +155,7 @@ const Object & Stack<Object>::top() const
 
 // Pop/Remove the top element and report exception if stack is empty
 template <class Object>
-void Stack<Object>::pop() const
+void Stack<Object>::pop()
 {
     if (isEmpty())
         throw Underflow();
