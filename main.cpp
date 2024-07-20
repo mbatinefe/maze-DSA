@@ -4,7 +4,19 @@
 #include <iostream>
 #include <string>
 
+#include "stack.h"
+
 using namespace std;
+
+void CreateMaze(int K, int M, int N){
+    for (int k = 0; k < K; k++){
+        // Lets create the maze from stack.h
+        
+        
+
+    }
+
+}
 
 int main() {
 
