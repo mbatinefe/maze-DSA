@@ -11,11 +11,53 @@
 
 using namespace std;
 
+// Lets create a function to remove wall
+void RemoveWall(Cell<int>& c, Cell<int>& n){
+    // c represent where we are
+    // n represent where we want to go
+
+    // Remove wall between c and n
+    // Situation 1 : | c | n | or | n | c |
+                    // Going left or right
+    if (c.x != n.x && c.y == n.y){
+        if (c.x < n.x){
+            c.R = 0;
+            n.L = 0;
+        }else{
+            c.L = 0;
+            n.R = 0;
+        }
+    } else {
+        // Situation 2 : | c | or | n |
+        //               | n |    | c |
+                        // Going up or down
+        if(c.y < n.y){
+            c.U = 0;
+            n.D = 0;
+        } else{
+            c.D = 0;
+            n.U = 0;
+        }
+    }
+}
+
+// Check if the current cell has unvisited neighbors
+bool HasUnvisitedNeighbors(Cell<int>** maze, int K, int M, int N, Cell<int> c){
+    // Lets check if the current cell has unvisited neighbors
+
+}
+
+// Lets create a function to select unvisited neighbors randomly
+Cell<int> SelectNeighbor(Cell<int>** maze, int K, int M, int N, Cell<int> c){
+
+}
+
+
+// Lets create a function to create maze
 void CreateMaze(int K, int M, int N){
-    // Lets create the maze from stack.h
-    // We will use 3D arrays for this
+    // I will use 3D arrays for this
     // K number of mazes and M rows and N columns
-    // So that we will have access to all mazes with one array
+    // So that I will have access to all mazes with one array
     
     // Create the maze
     Cell<int>*** maze = new Cell<int>**[K];    // Allocate memory for maze
@@ -69,7 +111,11 @@ void CreateMaze(int K, int M, int N){
 
         if (askedStack != nullptr) {
             // Lets add (0,0) to the stack
+            maze[k][M-1][0].visited = 1;
             askedStack->push(maze[k][M-1][0]);
+
+            
+
 
             if (DEBUG_STACK) {
                 cout << "Stack " << k+1 << " : ";
@@ -81,7 +127,7 @@ void CreateMaze(int K, int M, int N){
             }
             
             // Lets construct the maze path/wall algorithm now
-            
+
             
 
 
@@ -94,6 +140,8 @@ void CreateMaze(int K, int M, int N){
     }
 
 }
+
+
 
 int main() {
 
