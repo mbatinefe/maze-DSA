@@ -99,7 +99,7 @@ class ListOfStacks
             }
             // Check if we found the stack at the given index
             if (current == nullptr) {
-                std::cerr << "Stack at index " << index << " DNE." << std::endl;
+                cout<< "Stack at index " << index << " DNE." << endl;
                 return nullptr;
             }
             return current->stack;
