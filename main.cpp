@@ -77,81 +77,25 @@ Cell<int> SelectNeighbor(Cell<int>** maze, int K, int M, int N, Cell<int> c){
 
     // If random selected all 4 numbers and all neighbors are visited, return the current
     // Create the list - Lets not use vectors, lets use arrays
-     int selected[4] = {0, 0, 0, 0}; // Index numbers of 0,1,2,3  
+    int selected[4] = {-1, -1, -1, -1}; // Index numbers of 0,1,2,3  
 
     // Lets check the random number
     while(true){
-        bool allAttempted = true;
-        for(int i = 0; i < 4; i++){
-            if(selected[i] == 0){
-                allAttempted = false;
-                break;
-            }
-        }
-
-        if(allAttempted){
-            // All directions attempted, return current cell
+        if (selected[0] != -1 && selected[1] != -1 && selected[2] != -1 && selected[3] != -1){
+            // All numbers are selected
             return c;
         }
+
         int random = dist(engine);
-        if(selected[random] == -1){
-            // This direction was already attempted, try another
-            continue;
+        if(selected[random] != -1){
+            selected[random] = 1;
         }
-        // Mark this direction as attempted
-        selected[random] = -1;
 
         switch (random){
             case 0:
                 // Up
                 // First check if the cell on the maze
-                if (c.y-1 >= 0 && maze[c.y-1][c.x].visited == 0){ // Correct "Up" logic
-                    n = maze[c.y-1][c.x];
-                    maze[n.y][n.x].visited = 1; // Mark the new cell as visited
-                    cout << "Up: maze["<< n.y << ", " << n.x << "]"<< endl;
-                    return n;
-                }
-            case 1:
-                // Down
-                if (c.y+1 < N && maze[c.y+1][c.x].visited == 0){ // Correct "Down" logic
-                    n = maze[c.y+1][c.x];
-                    maze[n.y][n.x].visited = 1; // Mark the new cell as visited
-                    cout << "Down: maze["<< n.y << ", " << n.x << "]"<< endl;
-                    return n;
-                }
-                break;
-            case 2:
-                // Left
-                if (c.x-1 >= 0 && maze[c.y][c.x-1].visited == 0){
-                    n = maze[c.y][c.x-1];
-                    maze[n.y][n.x].visited = 1; // Mark the new cell as visited
-                    cout << "Left: maze["<< n.y << ", " << n.x << "]"<< endl;
-                    return n;
-                }
-                break;
-            case 3:
-                // Right
-                if (c.x+1 < M && maze[c.y][c.x+1].visited == 0){
-                    n = maze[c.y][c.x+1];
-                    maze[n.y][n.x].visited = 1; // Mark the new cell as visited
-                    cout << "Right: maze["<< n.y << ", " << n.x << "]"<< endl;
-                    return n;
-                }
-                break;
-        } break;
-
-    }
-
-    return n;
-}
-
-
-/*
-        switch (random){
-            case 0:
-                // Up
-                // First check if the cell on the maze
-                if ((c.y)+1 < M && maze[(c.y)+1][c.x].visited == 0){
+                if (c.y+1 < M && maze[c.y+1][c.x].visited == 0){
                     n = maze[c.y+1][c.x];
                     cout << "Selected Up: maze["<< c.y+1 << ", " << c.x <<  "]"<< endl;
                     return n;
@@ -160,33 +104,36 @@ Cell<int> SelectNeighbor(Cell<int>** maze, int K, int M, int N, Cell<int> c){
             case 1:
                 // Down
                 // First check if the cell on the maze
-                if ((c.y)-1 >= 0 && maze[c.x+1][c.x].visited == 0){
-                    n = maze[c.x+1][c.x];
-                    cout << "Selected Down: maze["<< c.x+1 << ", " << c.x <<  "]"<< endl;
+                if (c.y-1 >= 0 && maze[c.y-1][c.x].visited == 0){
+                    n = maze[c.y-1][c.x];\
+                    cout << "Selected Down: maze["<< c.y-1 << ", " << c.x <<  "]"<< endl;
                     return n;
                 }
                 break;
             case 2:
                 // Right
                 // First check if the cell on the maze
-                if ((c.x)+1 < N && maze[N-(c.x)-1][N-(c.x)].visited == 0){
-                    n = maze[N-(c.x)-1][N-(c.x)];
-                    cout << "Selected Right: maze["<< c.x << ", " << (c.y)+1 <<  "]"<< endl;
+                if (c.x+1 < N && maze[c.y][c.x+1].visited == 0){
+                    n = maze[c.y][c.x+1];
+                    cout << "Selected Right: maze["<< c.y << ", " << c.x+1 <<  "]"<< endl;
                     return n;
                 }
                 break;
             case 3:
                 // Left
                 // First check if the cell on the maze
-                if (c.y-1 <= 0 && maze[c.y][c.x-1].visited == 0){
+                if (c.x-1 >= 0 && maze[c.y][c.x-1].visited == 0){
                     n = maze[c.y][c.x-1];
                     cout << "Selected Left: maze[" << c.y << ", " << c.x-1 << "]"<< endl;
                     return n;
                 }
                 break;
         }
-        
-*/
+
+    }
+
+    return n;
+}
 
 // Lets create a function to create maze
 void CreateMaze(int K, int M, int N){
@@ -236,16 +183,14 @@ void CreateMaze(int K, int M, int N){
             cout << endl;
         }
 
-        for (int k = 0; k < K; k++) {
-            cout << "Maze " << k+1  << "According to inside values maze[FIRST][SECOND]"<< endl;
-            for (int i = 0; i < M; i++) {
-                for (int j = 0; j < N; j++) {
-                    cout << "(" << i << "," << j << ") ";
-                }
-                cout << endl;
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < N; j++) {
+                cout << "(" << maze[0][i][j].x << "," << maze[0][i][j].y << ") ";
             }
             cout << endl;
         }
+        cout << endl;
+        
     }
 
     // Lets create our stack list
@@ -260,16 +205,14 @@ void CreateMaze(int K, int M, int N){
             maze[k][M-1][0].visited = 1;
             askedStack->push(maze[k][M-1][0]);
 
-            cout << "Start: maze" << maze[k][M-1][0].y << " " << maze[k][M-1][0].x << endl;
-            cout << "Selected Start: " << M-1 << " " << 0 << endl;
-             /*
+            /*
                 First selection of road
             */
             Cell<int> temp;
             temp = SelectNeighbor(maze[k], K, M, N, maze[k][M-1][0]); // First selection of neighbor
 
             // Lets print temp
-            cout << "Selected Neighbor: " << temp.y << " " << temp.x << endl;
+            cout << "Selected Neighbor: " << temp.x << " " << temp.y << endl;
 
             if(maze[k][temp.y][temp.x] != maze[k][M-1][0]){
                 RemoveWall(maze[k][M-1][0], maze[k][temp.y][temp.x]);
