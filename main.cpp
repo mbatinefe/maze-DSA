@@ -1,11 +1,13 @@
 // Mustafa Batin EFE - 29272
 // CS300 - Data Structures - Homework 1
 
-# define DEBUG_3DARRAY true // Debugging - Creating Maze Members
-# define DEBUG_STACK true // Debugging - Stack Members
+# define DEBUG_3DARRAY false // Debugging - Creating Maze Members
+# define DEBUG_STACK false // Debugging - Stack Members
+# define DEBUG_CELL_WALL_SELECTION true // Debugging - Stack Members
 
 #include <iostream>
 #include <string>
+#include <random>
 
 #include "stack.h"
 
@@ -42,16 +44,78 @@ void RemoveWall(Cell<int>& c, Cell<int>& n){
 }
 
 // Check if the current cell has unvisited neighbors
-bool HasUnvisitedNeighbors(Cell<int>** maze, int K, int M, int N, Cell<int> c){
+bool CheckUVneighbor(Cell<int>** maze, int K, int M, int N, Cell<int> c, string direction){
     // Lets check if the current cell has unvisited neighbors
-
+    return false;
 }
 
 // Lets create a function to select unvisited neighbors randomly
 Cell<int> SelectNeighbor(Cell<int>** maze, int K, int M, int N, Cell<int> c){
+    // Lets select a random neighbor of current cell and return it after checking
 
+    // 0 : Up, 1 : Down, 2 : Right, 3 : Left
+
+    // There might be cont loop here, we can store previous random values and stop selecting more than 4 times in the future
+
+    // If all numbers are selected, we can return the current cell meaning there is no unvisited neighbors left
+
+    Cell<int> n; // Neigbor cell
+    mt19937 engine(random_device{}()); // Random number engine
+    uniform_int_distribution<int> dist(0, 3); // Distribution in range [0, 3]
+
+    // If random selected all 4 numbers and all neighbors are visited, return the current
+    // Create the list - Lets not use vectors, lets use arrays
+    int selected[4] = {-1, -1, -1, -1}; // Index numbers of 0,1,2,3  
+
+    // Lets check the random number
+    while(true){
+        if (selected[0] != -1 && selected[1] != -1 && selected[2] != -1 && selected[3] != -1){
+            // All numbers are selected
+            return c;
+        }
+
+        int random = dist(engine);
+        if(selected[random] != -1){
+            selected[random] = 1;
+        }
+
+        switch (random){
+            case 0:
+                // Up
+                // First check if the cell on the maze
+                if (c.y+1 < M){
+                    n = maze[c.y+1][c.x];
+                }
+                break;
+            case 1:
+                // Down
+                // First check if the cell on the maze
+                if (c.y-1 >= 0){
+                    n = maze[c.y-1][c.x];
+                }
+                break;
+            case 2:
+                // Right
+                // First check if the cell on the maze
+                if (c.x+1 < N){
+                    n = maze[c.y][c.x+1];
+                }
+                break;
+            case 3:
+                // Left
+                // First check if the cell on the maze
+                if (c.x-1 >= 0){
+                    n = maze[c.y][c.x-1];
+                }
+                break;
+        }
+        if(n.visited == 0 && c != n){
+            break;
+        } 
+    }
+
+    return n;
 }
-
 
 // Lets create a function to create maze
 void CreateMaze(int K, int M, int N){
@@ -114,8 +178,24 @@ void CreateMaze(int K, int M, int N){
             maze[k][M-1][0].visited = 1;
             askedStack->push(maze[k][M-1][0]);
 
-            
+            Cell<int> temp;
+            temp = SelectNeighbor(maze[k], K, M, N, maze[k][M-1][0]); // First selection of neighbor
 
+            // Lets print temp
+            cout << "Selected Neighbor: " << temp.x << " " << temp.y << endl;
+
+            if(maze[k][temp.y][temp.x] != maze[k][M-1][0]){
+           
+                RemoveWall(maze[k][M-1][0], maze[k][temp.y][temp.x]);
+                maze[k][temp.y][temp.x].visited = 1; // Check x and y cordinates
+                askedStack->push(maze[k][temp.y][temp.x]);
+            }
+
+            // Lets continue to search for other unvisited neighbors and remove walls.
+            // We will use a while loop to check if there is any unvisited neighbors
+            // If we need to backtrack because no root available, we will use stack to pop last element and continue from there
+            // Lets start with the first stack
+            
 
             if (DEBUG_STACK) {
                 cout << "Stack " << k+1 << " : ";
@@ -128,16 +208,28 @@ void CreateMaze(int K, int M, int N){
             
             // Lets construct the maze path/wall algorithm now
 
-            
-
-
-
+    
         } else {
             if (DEBUG_STACK) {
                 cout << "THERE IS NO STACK AVAILABLE" << endl;
             }
         }
+        if(DEBUG_CELL_WALL_SELECTION){
+            // Lets print the maze and their selected neighbors
+            cout << "Maze " << k+1 << endl;
+            for (int i = 0; i < M; i++) {
+                for (int j = 0; j < N; j++) {
+                    cout << "(" << maze[k][i][j].x << "," << maze[k][i][j].y << ") " << maze[k][i][j].U << maze[k][i][j].D << maze[k][i][j].R << maze[k][i][j].L << " " << maze[k][i][j].visited << " | ";
+                }
+                cout << endl;
+            }
+            cout << endl;
+
+        }
     }
+
+
+
 
 }
 
@@ -159,7 +251,6 @@ int main() {
 
     // Create the maze
     CreateMaze(K, M, N);
-    
     cout << "All mazes are generated." << endl << endl;
 
     // Now, we will ask for entry, exit points and maze ID

@@ -23,6 +23,16 @@ struct Cell {
     
     Cell() : x(0), y(0), L(true), R(true), U(true), D(true), visited(false) {}
     Cell(Object x, Object y) : x(x), y(y), L(true), R(true), U(true), D(true), visited(false) {}
+
+    // Write operator overload for comparison != and ==
+    bool operator!=(const Cell &rhs) const {
+        return x != rhs.x || y != rhs.y;
+    }
+
+    bool operator==(const Cell &rhs) const {
+        return x == rhs.x && y == rhs.y;
+    }
+
 };
 
 // Stack class
