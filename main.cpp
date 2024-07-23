@@ -13,35 +13,6 @@
 
 using namespace std;
 
-// Lets create a function to remove wall
-void RemoveWall(Cell<int>& c, Cell<int>& n){
-    // c represent where we are
-    // n represent where we want to go
-
-    // Remove wall between c and n
-    // Situation 1 : | c | n | or | n | c |
-                    // Going left or right
-    if (c.x != n.x && c.y == n.y){
-        if (c.x < n.x){
-            c.R = 0;
-            n.L = 0;
-        }else{
-            c.L = 0;
-            n.R = 0;
-        }
-    } else {
-        // Situation 2 : | c | or | n |
-        //               | n |    | c |
-                        // Going up or down
-        if(c.y < n.y){
-            c.U = 0;
-            n.D = 0;
-        } else{
-            c.D = 0;
-            n.U = 0;
-        }
-    }
-}
 
 // Check if the current cell has unvisited neighbors
 bool CheckUVneighbor(Cell<int>** maze, int M, int N, Cell<int> c){
@@ -94,7 +65,7 @@ bool CheckUVneighbor(Cell<int>** maze, int M, int N, Cell<int> c){
 
 
 // Lets create a function to select unvisited neighbors randomly
-Cell<int> SelectNeighbor(Cell<int>** maze, int M, int N, Cell<int> c){
+Cell<int> SelectNeighbor(Cell<int>**& maze, int M, int N, Cell<int>& c){
     // Lets select a random neighbor of current cell and return it after checking
 
     // 0 : Up, 1 : Down, 2 : Right, 3 : Left
@@ -119,6 +90,8 @@ Cell<int> SelectNeighbor(Cell<int>** maze, int M, int N, Cell<int> c){
         }
 
         int random = dist(engine);
+
+        // It selects sometimes too many times the same rundom number, fix it------------------------------------------------------------------------------------------------
         selected[random] = 1;
         
         int row = -1;
@@ -129,7 +102,8 @@ Cell<int> SelectNeighbor(Cell<int>** maze, int M, int N, Cell<int> c){
                 if (maze[i][j].x == c.x && maze[i][j].y == c.y){
                     row = i;
                     col = j;
-
+                    
+                    maze[i][j].visited = 1; // Guarantee current cell is visited
                     // End the loop
                     j = N;
                     i = M;
@@ -147,6 +121,9 @@ Cell<int> SelectNeighbor(Cell<int>** maze, int M, int N, Cell<int> c){
                         cout << "Current Cell Values .x and .y: " << c.x << " " << c.y << endl;
                     }
                     n = maze[row-1][col];
+                    n.visited =1;
+                    n.D = 0;
+                    maze[row][col].U = 0;
                     cout << "Selected Up TO: maze["<< row-1 << ", " << col <<  "]"<< endl<< endl;
                     return n;
                 }
@@ -160,6 +137,9 @@ Cell<int> SelectNeighbor(Cell<int>** maze, int M, int N, Cell<int> c){
                         cout << "Current Cell Values .x and .y: " << c.x << " " << c.y << endl;
                     }
                     n = maze[row+1][col];
+                    n.visited =1;
+                    n.U = 0;
+                    maze[row][col].D = 0;
                     cout << "Selected Down TO: maze["<< row+1 << ", " << col <<  "]"<< endl<< endl;
                     return n;
                 }
@@ -173,6 +153,9 @@ Cell<int> SelectNeighbor(Cell<int>** maze, int M, int N, Cell<int> c){
                         cout << "Current Cell Values .x and .y: " << c.x << " " << c.y << endl;
                     }
                     n = maze[row][col+1];
+                    n.visited =1;
+                    n.L = 0;
+                    maze[row][col].R = 0;
                     cout << "Selected Right TO: maze["<< row << ", " << col+1 <<  "]"<< endl << endl;
                     return n;
                 }
@@ -186,6 +169,9 @@ Cell<int> SelectNeighbor(Cell<int>** maze, int M, int N, Cell<int> c){
                         cout << "Current Cell Values .x and .y: " << c.x << " " << c.y << endl;
                     }
                     n = maze[row][col-1];
+                    n.visited =1;
+                    n.R = 0;
+                    maze[row][col].L = 0;
                     cout << "Selected Left TO: maze[" << row << ", " << col-1 << "]"<< endl<< endl;
                     return n;
                 }
@@ -284,7 +270,10 @@ void CreateMaze(int K, int M, int N){
 
             while(CheckUVneighbor(maze[k], M, N, askedStack->top())){
                 Cell<int> temp_rest;
-                temp_rest = SelectNeighbor(maze[k], M, N, askedStack->top());
+                Cell<int> temp_rest_base = askedStack->top();
+                askedStack->pop();
+
+                temp_rest = SelectNeighbor(maze[k], M, N, temp_rest_base);
                 // cout << "Selected Neighbor Rest: " << temp_rest.x << " " << temp_rest.y << endl;
 
                 int row = -1;
@@ -296,6 +285,11 @@ void CreateMaze(int K, int M, int N){
                             //cout << "Index of Current Cell (c): " << i << " " << j << endl;
                             row = i;
                             col = j;
+                            maze[k][row][col].visited = temp_rest.visited;
+                            maze[k][row][col].L = temp_rest.L;
+                            maze[k][row][col].R = temp_rest.R;
+                            maze[k][row][col].U = temp_rest.U;
+                            maze[k][row][col].D = temp_rest.D;
                             // End the loop
                             j = N;
                             i = M;
@@ -303,11 +297,9 @@ void CreateMaze(int K, int M, int N){
                     }
                 }
                     
-                Cell<int> temp_rest_base = askedStack->top();
                 // Push maze, push source row, col, push destination row, col
                 // Or do it on SelectNeighbor function
-                RemoveWall(temp_rest_base, maze[k][row][col]);
-                maze[k][row][col].visited = 1;
+                askedStack->push(temp_rest_base);
                 askedStack->push(maze[k][row][col]);
 
             }
