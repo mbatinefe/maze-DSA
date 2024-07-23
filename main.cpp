@@ -237,9 +237,9 @@ void CreateMaze(int K, int M, int N){
             // We will use a while loop to check if there is any unvisited neighbors
             // If we need to backtrack because no root available, we will use stack to pop last element and continue from there
             // Lets start with the first stack
-
+            int visit_count = M*N -1 ;// First cell is already visited
             while(CheckUVneighbor(maze[k], M, N, askedStack->top())){
-                Cell<int> temp_rest_next;;
+                Cell<int> temp_rest_next;
                 Cell<int> temp_rest_base = askedStack->top();
                 // temp_rest_base = [k][m][n]
                 askedStack->pop();
@@ -264,14 +264,48 @@ void CreateMaze(int K, int M, int N){
                 maze[k][temp_rest_next.row][temp_rest_next.col].U = temp_rest_next.U;
                 maze[k][temp_rest_next.row][temp_rest_next.col].D = temp_rest_next.D;
                 
+                visit_count--;
+
                 // Push maze, push source row, col, push destination row, col
                 // Or do it on SelectNeighbor function
                 askedStack->push(temp_rest_base);
                 askedStack->push(temp_rest_next);
 
             }
-            cout << "Maze has no neighbors! Time to backtrack! " << endl;
-        
+
+            while(!askedStack->isEmpty() && visit_count > 0){
+                Cell<int> temp_rest_next;
+                Cell<int> temp_rest_base = askedStack->top();
+                askedStack->pop();
+
+                if(CheckUVneighbor(maze[k], M, N, temp_rest_base) != false){
+                    // If there is no unvisited neighbors, pop the last element
+                    // and continue to search for unvisited neighbors
+                                    // Returned updated next cell
+                    temp_rest_next = SelectNeighbor(maze[k], M, N, temp_rest_base);
+                    // cout << "Selected Neighbor Rest: " << temp_rest.x << " " << temp_rest.y << endl;
+                    
+                    // Temp_rest_base passed by reference su update their values on our maze
+                    maze[k][temp_rest_base.row][temp_rest_base.col].visited = temp_rest_base.visited;
+                    maze[k][temp_rest_base.row][temp_rest_base.col].L = temp_rest_base.L;
+                    maze[k][temp_rest_base.row][temp_rest_base.col].R = temp_rest_base.R;
+                    maze[k][temp_rest_base.row][temp_rest_base.col].U = temp_rest_base.U;
+                    maze[k][temp_rest_base.row][temp_rest_base.col].D = temp_rest_base.D;
+
+                    // Temp_rest_next returned directly update as well
+                    maze[k][temp_rest_next.row][temp_rest_next.col].visited = temp_rest_next.visited;
+                    maze[k][temp_rest_next.row][temp_rest_next.col].L = temp_rest_next.L;
+                    maze[k][temp_rest_next.row][temp_rest_next.col].R = temp_rest_next.R;
+                    maze[k][temp_rest_next.row][temp_rest_next.col].U = temp_rest_next.U;
+                    maze[k][temp_rest_next.row][temp_rest_next.col].D = temp_rest_next.D;
+                    
+                    visit_count--;
+                    askedStack->push(temp_rest_next);
+                    
+                } 
+            }
+            cout << "Maze " << k+1 << " is completed." << endl;
+
             // Lets construct the maze path/wall algorithm now
 
     
