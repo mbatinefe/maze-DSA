@@ -1,7 +1,7 @@
 // Mustafa Batin EFE - 29272
 // CS300 - Data Structures - Homework 1
 
-# define DEBUG_3DARRAY false // Debugging - Creating Maze Members
+# define DEBUG_3DARRAY true // Debugging - Creating Maze Members
 # define DEBUG_STACK false // Debugging - Stack Members
 # define DEBUG_CELL_WALL_SELECTION true // Debugging - Stack Members
 
@@ -18,39 +18,23 @@ using namespace std;
 bool CheckUVneighbor(Cell<int>** maze, int M, int N, Cell<int> c){
     // Lets check if the current cell has unvisited neighbors
     // If there is an unvisited neighbor, return true
-    
-    int row = -1;
-    int col = -1;
-    for (int i = 0; i < M; i++) {
-        for (int j = 0; j < N; j++) {
-            if (maze[i][j].x == c.x && maze[i][j].y == c.y){
-                //cout << "Current Cell Values .x and .y: " << c.x << " " << c.y << endl;
-                //cout << "Index of Current Cell (c): " << i << " " << j << endl;
-                row = i;
-                col = j;
-                // End the loop
-                j = N;
-                i = M;
-            }
-        }
-    }
 
-    cout << "Searching for unvisited neighbors of maze[" << row << ", " << col << "]";
+    cout << "Searching for unvisited neighbors of maze[" << c.row << ", " << c.col << "]";
     int count = 0;
 
-    if(col-1 >= 0 && maze[row][col-1].visited == 0){ // Left
+    if(c.col-1 >= 0 && maze[c.row][c.col-1].visited == 0){ // Left
         count++;
     }  
     
-    if(col+1 < N && maze[row][col+1].visited == 0){ // Right
+    if(c.col+1 < N && maze[c.row][c.col+1].visited == 0){ // Right
         count++;
     } 
      
-    if(row+1 < M && maze[row+1][col].visited == 0){ // Down
+    if(c.row+1 < M && maze[c.row+1][c.col].visited == 0){ // Down
         count++;
     } 
     
-    if(row-1 >= 0 && maze[row-1][col].visited == 0){ // Up
+    if(c.row-1 >= 0 && maze[c.row-1][c.col].visited == 0){ // Up
         count++;
     }
 
@@ -91,96 +75,78 @@ Cell<int> SelectNeighbor(Cell<int>**& maze, int M, int N, Cell<int>& c){
 
         int random = dist(engine);
 
-        // It selects sometimes too many times the same rundom number, fix it------------------------------------------------------------------------------------------------
-        selected[random] = 1;
-        
-        int row = -1;
-        int col = -1;
-        // Lets find c in the maze
-        for (int i = 0; i < M; i++) {
-            for (int j = 0; j < N; j++) {
-                if (maze[i][j].x == c.x && maze[i][j].y == c.y){
-                    row = i;
-                    col = j;
-                    
-                    maze[i][j].visited = 1; // Guarantee current cell is visited
-                    // End the loop
-                    j = N;
-                    i = M;
-                }
+        if(selected[random] == -1){
+            // It selects sometimes too many times the same rundom number, fix it------------------------------------------------------------------------------------------------
+            selected[random] = 1;
+            
+            switch (random){
+                case 0:
+                    // Up
+                    // First check if the cell on the maze
+                    if (c.row-1 >= 0 && maze[c.row-1][c.col].visited == 0){
+                        if(DEBUG_CELL_WALL_SELECTION){
+                            cout << "Index of Current Cell (c): " << c.row << " " << c.col << endl;
+                            cout << "Current Cell Values .x and .y: " << c.x << " " << c.y << endl;
+                        }
+                        maze[c.row-1][c.col].visited =1;
+                        maze[c.row-1][c.col].D = 0;
+                        c.U = 0;
+                        cout << "Selected Up TO: maze["<< c.row-1 << ", " << c.col <<  "]"<< endl<< endl;
+                        return maze[c.row-1][c.col];
+                    }
+                    break;
+                case 1:
+                    // Down
+                    // First check if the cell on the maze
+                    if (c.row+1 < M && maze[c.row+1][c.col].visited == 0){
+                        if(DEBUG_CELL_WALL_SELECTION){
+                            cout << "Index of Current Cell (c): " << c.row << " " << c.col << endl;
+                            cout << "Current Cell Values .x and .y: " << c.x << " " << c.y << endl;
+                        }
+                        maze[c.row+1][c.col].visited =1;
+                        maze[c.row+1][c.col].U = 0;
+                        c.D = 0;
+                        cout << "Selected Down TO: maze["<< c.row+1 << ", " << c.col <<  "]"<< endl<< endl;
+                        return maze[c.row+1][c.col];
+                    }
+                    break;
+                case 2:
+                    // Right
+                    // First check if the cell on the maze
+                    if (c.col+1 < N && maze[c.row][c.col+1].visited == 0){
+                        if(DEBUG_CELL_WALL_SELECTION){
+                            cout << "Index of Current Cell (c): " << c.row << " " << c.col << endl;
+                            cout << "Current Cell Values .x and .y: " << c.x << " " << c.y << endl;
+                        }
+                        maze[c.row][c.col+1].visited =1;
+                        maze[c.row][c.col+1].L = 0;
+                        c.R = 0;
+                        cout << "Selected Right TO: maze["<< c.row << ", " << c.col+1 <<  "]"<< endl << endl;
+                        return maze[c.row][c.col+1];
+                    }
+                    break;
+                case 3:
+                    // Left
+                    // First check if the cell on the maze
+                    if (c.col-1 >= 0 && maze[c.row][c.col-1].visited == 0){
+                        if(DEBUG_CELL_WALL_SELECTION){
+                            cout << "Index of Current Cell (c): " << c.row << " " << c.col << endl;
+                            cout << "Current Cell Values .x and .y: " << c.x << " " << c.y << endl;
+                        }
+                        maze[c.row][c.col-1].visited =1;
+                        maze[c.row][c.col-1].R = 0;
+                        c.L = 0;
+                        cout << "Selected Left TO: maze[" << c.row << ", " << c.col-1 << "]"<< endl<< endl;
+                        return maze[c.row][c.col-1];
+                    }
+                    break;
             }
-        }
 
-        switch (random){
-            case 0:
-                // Up
-                // First check if the cell on the maze
-                if (row-1 >= 0 && maze[row-1][col].visited == 0){
-                    if(DEBUG_CELL_WALL_SELECTION){
-                        cout << "Index of Current Cell (c): " << row << " " << col << endl;
-                        cout << "Current Cell Values .x and .y: " << c.x << " " << c.y << endl;
-                    }
-                    n = maze[row-1][col];
-                    n.visited =1;
-                    n.D = 0;
-                    maze[row][col].U = 0;
-                    cout << "Selected Up TO: maze["<< row-1 << ", " << col <<  "]"<< endl<< endl;
-                    return n;
-                }
-                break;
-            case 1:
-                // Down
-                // First check if the cell on the maze
-                if (row+1 < M && maze[row+1][col].visited == 0){
-                    if(DEBUG_CELL_WALL_SELECTION){
-                        cout << "Index of Current Cell (c): " << row << " " << col << endl;
-                        cout << "Current Cell Values .x and .y: " << c.x << " " << c.y << endl;
-                    }
-                    n = maze[row+1][col];
-                    n.visited =1;
-                    n.U = 0;
-                    maze[row][col].D = 0;
-                    cout << "Selected Down TO: maze["<< row+1 << ", " << col <<  "]"<< endl<< endl;
-                    return n;
-                }
-                break;
-            case 2:
-                // Right
-                // First check if the cell on the maze
-                if (col+1 < N && maze[row][col+1].visited == 0){
-                    if(DEBUG_CELL_WALL_SELECTION){
-                        cout << "Index of Current Cell (c): " << row << " " << col << endl;
-                        cout << "Current Cell Values .x and .y: " << c.x << " " << c.y << endl;
-                    }
-                    n = maze[row][col+1];
-                    n.visited =1;
-                    n.L = 0;
-                    maze[row][col].R = 0;
-                    cout << "Selected Right TO: maze["<< row << ", " << col+1 <<  "]"<< endl << endl;
-                    return n;
-                }
-                break;
-            case 3:
-                // Left
-                // First check if the cell on the maze
-                if (col-1 >= 0 && maze[row][col-1].visited == 0){
-                    if(DEBUG_CELL_WALL_SELECTION){
-                        cout << "Index of Current Cell (c): " << row << " " << col << endl;
-                        cout << "Current Cell Values .x and .y: " << c.x << " " << c.y << endl;
-                    }
-                    n = maze[row][col-1];
-                    n.visited =1;
-                    n.R = 0;
-                    maze[row][col].L = 0;
-                    cout << "Selected Left TO: maze[" << row << ", " << col-1 << "]"<< endl<< endl;
-                    return n;
-                }
-                break;
         }
 
     }
 
-    return n;
+    return c;
 }
 
 // Lets create a function to create maze
@@ -196,6 +162,9 @@ void CreateMaze(int K, int M, int N){
     
     cout << endl;
 
+    /*
+        Lets create the maze with all walls and row and col values
+    */
     for (int k = 0; k < K; k++) {
         maze[k] = new Cell<int>*[M];    // Allocate memory for maze
         for (int i = 0; i < M; i++) { // Rows
@@ -210,7 +179,8 @@ void CreateMaze(int K, int M, int N){
                 maze[k][i][j].U = 1;
                 maze[k][i][j].D = 1;
                 maze[k][i][j].visited = 0;
-
+                maze[k][i][j].row = i;
+                maze[k][i][j].col = j;
                 if(DEBUG_3DARRAY){
                     cout << maze[k][i][j].L << maze[k][i][j].R << maze[k][i][j].U << maze[k][i][j].D;
                 }
@@ -238,7 +208,7 @@ void CreateMaze(int K, int M, int N){
             cout << "Maze " << k+1  << "maze[M = row][N = col]"<< endl;
             for (int i = 0; i < M; i++) {
                 for (int j = 0; j < N; j++) {
-                    cout << "(" << i << "," << j << ") ";
+                    cout << "(" << maze[k][i][j].row << "," << maze[k][i][j].col << ") ";
                 }
                 cout << endl;
             }
@@ -269,52 +239,39 @@ void CreateMaze(int K, int M, int N){
             // Lets start with the first stack
 
             while(CheckUVneighbor(maze[k], M, N, askedStack->top())){
-                Cell<int> temp_rest;
+                Cell<int> temp_rest_next;;
                 Cell<int> temp_rest_base = askedStack->top();
+                // temp_rest_base = [k][m][n]
                 askedStack->pop();
 
-                temp_rest = SelectNeighbor(maze[k], M, N, temp_rest_base);
+                // Lets print temp_rest_base
+                
+                // Returned updated next cell
+                temp_rest_next = SelectNeighbor(maze[k], M, N, temp_rest_base);
                 // cout << "Selected Neighbor Rest: " << temp_rest.x << " " << temp_rest.y << endl;
+                
+                // Temp_rest_base passed by reference su update their values on our maze
+                maze[k][temp_rest_base.row][temp_rest_base.col].visited = temp_rest_base.visited;
+                maze[k][temp_rest_base.row][temp_rest_base.col].L = temp_rest_base.L;
+                maze[k][temp_rest_base.row][temp_rest_base.col].R = temp_rest_base.R;
+                maze[k][temp_rest_base.row][temp_rest_base.col].U = temp_rest_base.U;
+                maze[k][temp_rest_base.row][temp_rest_base.col].D = temp_rest_base.D;
 
-                int row = -1;
-                int col = -1;
-                for (int i = 0; i < M; i++) {
-                    for (int j = 0; j < N; j++) {
-                        if (maze[k][i][j].x == temp_rest.x && maze[k][i][j].y == temp_rest.y){
-                            //cout << "Current Cell Values .x and .y: " << c.x << " " << c.y << endl;
-                            //cout << "Index of Current Cell (c): " << i << " " << j << endl;
-                            row = i;
-                            col = j;
-                            maze[k][row][col].visited = temp_rest.visited;
-                            maze[k][row][col].L = temp_rest.L;
-                            maze[k][row][col].R = temp_rest.R;
-                            maze[k][row][col].U = temp_rest.U;
-                            maze[k][row][col].D = temp_rest.D;
-                            // End the loop
-                            j = N;
-                            i = M;
-                        }
-                    }
-                }
-                    
+                // Temp_rest_next returned directly update as well
+                maze[k][temp_rest_next.row][temp_rest_next.col].visited = temp_rest_next.visited;
+                maze[k][temp_rest_next.row][temp_rest_next.col].L = temp_rest_next.L;
+                maze[k][temp_rest_next.row][temp_rest_next.col].R = temp_rest_next.R;
+                maze[k][temp_rest_next.row][temp_rest_next.col].U = temp_rest_next.U;
+                maze[k][temp_rest_next.row][temp_rest_next.col].D = temp_rest_next.D;
+                
                 // Push maze, push source row, col, push destination row, col
                 // Or do it on SelectNeighbor function
                 askedStack->push(temp_rest_base);
-                askedStack->push(maze[k][row][col]);
+                askedStack->push(temp_rest_next);
 
             }
             cout << "Maze has no neighbors! Time to backtrack! " << endl;
         
-
-            if (DEBUG_STACK) {
-                cout << "Stack " << k+1 << " : ";
-                while (!askedStack->isEmpty()) {
-                    Cell<int> temp = askedStack->topAndPop();
-                    cout << "(" << temp.x << "," << temp.y << ") ";
-                }
-                cout << endl;
-            }
-            
             // Lets construct the maze path/wall algorithm now
 
     

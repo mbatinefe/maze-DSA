@@ -18,11 +18,12 @@ class Underflow : public exception
 template <typename Object>
 struct Cell {
     Object x, y;
+    Object row, col;
     bool L, R, U, D;
     bool visited;
     
-    Cell() : x(0), y(0), L(true), R(true), U(true), D(true), visited(false) {}
-    Cell(Object x, Object y) : x(x), y(y), L(true), R(true), U(true), D(true), visited(false) {}
+    Cell() : x(0), y(0), L(true), R(true), U(true), D(true), visited(false), row(0), col(0) {}
+    Cell(Object x, Object y) : x(x), y(y), L(true), R(true), U(true), D(true), visited(false), row(row), col(col) {}
 
     // Write operator overload for comparison != and ==
     bool operator!=(const Cell &rhs) const {
