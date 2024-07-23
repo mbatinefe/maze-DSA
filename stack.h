@@ -22,8 +22,9 @@ struct Cell {
     bool L, R, U, D;
     bool visited;
     
-    Cell() : x(0), y(0), L(true), R(true), U(true), D(true), visited(false), row(0), col(0) {}
-    Cell(Object x, Object y) : x(x), y(y), L(true), R(true), U(true), D(true), visited(false), row(row), col(col) {}
+    Cell() : x(0), y(0), row(0), col(0), L(true), R(true), U(true), D(true), visited(false) {}
+    // I realize row and col is not the best to initilaize with 0, but I will keep it for now
+    Cell(Object x, Object y) : x(x), y(y), row(0), col(0), L(true), R(true), U(true), D(true), visited(false) {}
 
     // Write operator overload for comparison != and ==
     bool operator!=(const Cell &rhs) const {

@@ -152,7 +152,7 @@ Cell<int> SelectNeighbor(Cell<int>**& maze, int M, int N, Cell<int>& c){
 // Lets create a function to create maze
 void CreateMaze(int K, int M, int N){
     // I will use 3D arrays for this
-    // K number of mazes and M rows and N columns
+    // K number of mazes and M       rows and N columns
     // So that I will have access to all mazes with one array
     
     // Create the maze
@@ -173,7 +173,7 @@ void CreateMaze(int K, int M, int N){
                 maze[k][i][j].x = j;
                 maze[k][i][j].y = M-i-1; // We want bottom left to be 0,0
                 // If cell type is int, how can we store true or false? 
-                // We can use 1 for true and 0 for false
+                // We       w can use 1 for true and 0 for false
                 maze[k][i][j].L = 1;
                 maze[k][i][j].R = 1;
                 maze[k][i][j].U = 1;
