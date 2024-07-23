@@ -13,6 +13,26 @@
 
 using namespace std;
 
+// Lets save the maze
+void saveMaze(Cell<int>** maze, int M, int N, int maze_id){
+    // Lets save the maze to a file
+    // We will save the maze as a text file
+    
+    string line = "     ";
+    cout << "     ";
+    for(int i = 0; i < N; i++){
+        line += "___";;
+    }
+    cout << line << "_____" << endl;
+    for(int i = 0; i < M; i++){
+        cout << M << "    |";
+        for(int j = 0; j < N; j++){
+            cout << maze[i][j].x << "     " << maze[i][j].y << " " << maze[i][j].L << " " << maze[i][j].R << " " << maze[i][j].U << " " << maze[i][j].D << " " << maze[i][j].visited << endl;
+        }
+    }
+
+}
+
 
 // Check if the current cell has unvisited neighbors
 bool CheckUVneighbor(Cell<int>** maze, int M, int N, Cell<int> c){
@@ -305,6 +325,8 @@ void CreateMaze(int K, int M, int N){
                 } 
             }
             cout << "Maze " << k+1 << " is completed." << endl;
+
+            saveMaze(maze[k], M, N, k);
 
             // Lets construct the maze path/wall algorithm now
 
