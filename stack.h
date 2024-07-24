@@ -28,11 +28,11 @@ struct Cell {
 
     // Write operator overload for comparison != and ==
     bool operator!=(const Cell &rhs) const {
-        return x != rhs.x || y != rhs.y;
+        return row != rhs.row || col != rhs.col;
     }
 
     bool operator==(const Cell &rhs) const {
-        return x == rhs.x && y == rhs.y;
+        return row == rhs.row && col == rhs.col;
     }
 
 };
@@ -179,7 +179,11 @@ void Stack<Object>::pop()
 // Insert value to stack
 template <class Object>
 void Stack<Object>::push(const Object &x)
-{
+{   
+    if (isFull()) {
+        cout << "Warning: Stack is full. Cannot push new element." << endl;
+        return;
+    }
     topOfStack = new ListNode(x, topOfStack);
 }
 
