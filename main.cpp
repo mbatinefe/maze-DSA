@@ -361,7 +361,10 @@ void CreatePath(ListOfStacks<Cell<int>>& stacks_all, Cell<int>***& maze, int K, 
         // Lets start from the entry point
         askedStack->push(entry);
         // Lets create the path
-        
+        while(askedStack->top() != exit){
+            // Create the algorithm here
+
+        }
 
 
     } else {
