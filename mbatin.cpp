@@ -30,6 +30,33 @@ void SaveMaze(Cell<int>*** maze, int M, int N, int K){
     }
 }
 
+void SaveRoad(ListOfStacks<Cell<int>>& stacks_all, int M, int N, int K, int entry_X, int entry_Y, int exit_X, int exit_Y){
+    // We need to reverse the stack and write into file
+   
+    Stack<Cell<int>>* askedStack = stacks_all.getStackAtIndex(K);
+    // Create the file
+    string filename = "maze_" + to_string(K+1) + "_path_" + to_string(entry_X) + "_" + to_string(entry_Y) + "_" + to_string(exit_X) + "_" + to_string(exit_Y) + ".txt";
+    ofstream file(filename);
+
+    // Reverse the stack
+    Stack<Cell<int>>* reversedStack = new Stack<Cell<int>>();
+    while(!askedStack->isEmpty()){
+        reversedStack->push(askedStack->topAndPop());
+    }
+
+    // Write stacks x and y values to a file
+    while(!reversedStack->isEmpty()){
+        Cell<int> current = reversedStack->topAndPop();
+        file << current.x << " " << current.y << endl;
+    }
+    
+    file.close();
+    reversedStack->makeEmpty();
+    delete reversedStack;
+
+}
+
+
 // Check if the current cell has unvisited neighbors
 bool CheckUVneighbor(Cell<int>*** maze, int K, int M, int N, Cell<int> c){
 
@@ -224,6 +251,145 @@ void CreateMaze(ListOfStacks<Cell<int>>& stacks_all, Cell<int>***& maze, int K, 
     }
 }
 
+
+Cell<int> ChooseWall(Cell<int>***& maze, int K, int M, int N, Cell<int>& current){
+    Cell<int> candidate;
+    mt19937 engine(random_device{}());
+    uniform_int_distribution<int> dist(0, 3);
+    int selected[4] = {0, 0, 0, 0};
+
+    while(true){
+        if(selected[0] == 1 && selected[1] == 1 && selected[2] == 1 && selected[3] == 1){
+            // All numbers are selected
+            return current;
+        }
+
+        int random = dist(engine);
+        if(selected[random] == 0){
+            selected[random] = 1;
+
+            switch (random){
+                case 0:
+                    // Up
+                    // First check if the cell on the maze
+                    if (current.U == 0 && maze[K][current.row-1][current.col].visited == 0){
+
+                        cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
+                        << "-->" <<  "[" << current.row-1 << "]["<< current.col <<"] = {" 
+                        << maze[K][current.row-1][current.col].row <<"," << maze[K][current.row-1][current.col].col << "} " << endl;
+
+                        maze[K][current.row-1][current.col].visited =1;
+                        return maze[K][current.row-1][current.col];
+                    }
+                    break;
+                case 1:
+                    // Down
+                    // First check if the cell on the maze
+                    if (current.D == 0 && maze[K][current.row+1][current.col].visited == 0){
+                        cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
+                        << "-->" <<  "[" << current.row+1 << "]["<< current.col <<"] = {" 
+                        << maze[K][current.row+1][current.col].row <<"," << maze[K][current.row+1][current.col].col << "} " << endl;
+
+                        maze[K][current.row+1][current.col].visited =1;
+                        return maze[K][current.row+1][current.col];
+                    }
+                    break;
+                case 2:
+                    // Right
+                    // First check if the cell on the maze
+                    if (current.R == 0 && maze[K][current.row][current.col+1].visited == 0){
+
+                        cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
+                        << "-->" <<  "[" << current.row << "]["<< current.col+1 <<"] = {" 
+                        << maze[K][current.row][current.col+1].row <<"," << maze[K][current.row][current.col+1].col << "} " << endl;
+
+                        maze[K][current.row][current.col+1].visited =1;
+                        
+                        return maze[K][current.row][current.col+1];
+                    }
+                    break;
+                case 3:
+                    // Left
+                    // First check if the cell on the maze
+                    if (current.L == 0 && maze[K][current.row][current.col-1].visited == 0){
+                        cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
+                        << "-->" <<  "[" << current.row << "]["<< current.col-1 <<"] = {" 
+                        << maze[K][current.row][current.col-1].row <<"," << maze[K][current.row][current.col-1].col << "} " << endl;
+
+                        maze[K][current.row][current.col-1].visited =1;
+                        return maze[K][current.row][current.col-1];
+                    }
+                    break;
+            
+            }
+        } else {
+            continue;
+        }
+    
+    }
+
+}
+
+void CreatePath(ListOfStacks<Cell<int>>& stacks_all, Cell<int>***& maze, int maze_id, 
+            int M, int N, int entry_X, int entry_Y, int exit_X, int exit_Y){
+
+    Stack<Cell<int>>* askedStack = stacks_all.getStackAtIndex(maze_id-1);
+    askedStack->makeEmpty();
+
+    Cell<int> entry = maze[maze_id-1][M-entry_Y-1][entry_X];
+    Cell<int> exit = maze[maze_id-1][M-exit_Y-1][exit_X];
+
+    /*
+    cout << "Entry:" << entry.x << " " << entry.y << endl;
+    cout << "Entry:" <<entry_X  << " " <<   entry_Y<< endl;
+    cout << "Exit:" << exit.x << " " << exit.y << endl;
+    cout << "Exit:" <<exit_X  << " " <<   exit_Y<< endl;
+    */
+    
+    // First lets empty all the visited cells
+    for(int i = 0; i < M; i++){
+        for(int j = 0; j < N; j++){
+            maze[maze_id-1][i][j].visited = 0;
+        }
+    }
+
+    maze[maze_id-1][M-entry_Y-1][entry_X].visited = 1;
+    entry.visited = 1; // Same as above -- better view
+
+    askedStack->push(entry);
+    while(!askedStack->isEmpty()){
+        if(exit == askedStack->top()){
+            cout << "Exit is found" << endl;
+            break;
+        }
+        
+        Cell<int> current = askedStack->topAndPop();
+        Cell<int> candidate;
+        // Idx;      0: Up, 1: Down, 2: Right, 3: Left
+        candidate = ChooseWall(maze, maze_id-1, M, N, current);
+
+        cout << "Current (" <<current.x <<"," << current.y << ")" <<"=" <<"[" << current.row << "]["<< current.col << "]"<< endl;
+        cout << "Candidate (" <<candidate.x <<"," << candidate.y << ")" <<"=" <<"[" << candidate.row << "]["<< candidate.col << "]"<< endl;
+
+        if(candidate == current){
+            cout << "Going Back in Time" << endl;
+            continue;
+        } else{
+            maze[maze_id-1][current.row][current.col].visited = current.visited;
+            maze[maze_id-1][current.row][current.col].L = current.L;
+            maze[maze_id-1][current.row][current.col].R = current.R;
+            maze[maze_id-1][current.row][current.col].U = current.U;
+            maze[maze_id-1][current.row][current.col].D = current.D;
+            askedStack->push(current);
+            askedStack->push(candidate);
+        }
+
+    }
+
+
+}
+
+
 int main() {
     // Get input for maze number
     int K;
@@ -245,6 +411,7 @@ int main() {
     // Create the maze
     CreateMaze(stacks_all, maze, K, M, N);
 
+    // Save the maze
     SaveMaze(maze, M, N, K);
     
     // Print the maze
@@ -259,7 +426,9 @@ int main() {
     for (int k = 0; k < K; k++) {
         for (int i = 0; i < M; i++) {
             for (int j = 0; j < N; j++) {
-                cout << "(" << maze[k][i][j].x << "," << maze[k][i][j].y << ") " << maze[k][i][j].U << maze[k][i][j].D << maze[k][i][j].R << maze[k][i][j].L << " " << maze[k][i][j].visited << " | ";
+                cout << "(" << maze[k][i][j].x << "," << maze[k][i][j].y << ")" << "&[" << maze[k][i][j].row << "," << maze[k][i][j].col << "] "
+
+                << maze[k][i][j].U << maze[k][i][j].D << maze[k][i][j].R << maze[k][i][j].L << " " << maze[k][i][j].visited << " | ";
             }
             cout << endl;
         }
@@ -282,9 +451,11 @@ int main() {
     cin >> exit_X >> exit_Y;
 
     // Now, lets figure it out the path
-    //CreatePath(stacks_all, maze, maze_id, M, N, entry_X, entry_Y, exit_X, exit_Y);
+    CreatePath(stacks_all, maze, maze_id, M, N, entry_X, entry_Y, exit_X, exit_Y);
 
-    // Deallocate maze and stacks_all
-    // Also, check for temp ones.
+    // Save the road
+    SaveRoad(stacks_all, M, N, maze_id-1, entry_X, entry_Y, exit_X, exit_Y);
+
+    /// DELETE MAZES AND STACKS
 
 }    

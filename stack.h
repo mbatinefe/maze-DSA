@@ -35,6 +35,20 @@ struct Cell {
         return row == rhs.row && col == rhs.col;
     }
 
+    Cell& operator=(const Cell &rhs) {
+        if (this != &rhs) {
+            x = rhs.x;
+            y = rhs.y;
+            row = rhs.row;
+            col = rhs.col;
+            L = rhs.L;
+            R = rhs.R;
+            U = rhs.U;
+            D = rhs.D;
+            visited = rhs.visited;
+        }
+        return *this;
+    }
 };
 
 // Stack class
