@@ -33,7 +33,7 @@ void SaveMaze(Cell<int>*** maze, int M, int N, int K){
 }
 
 // Lets save the road
-void SaveRoad(ListOfStacks<Cell<int>>& stacks_all, int K, int entry_X, int entry_Y, int exit_X, int exit_Y){
+void SaveRoad(ListOfStacks<Cell<int>>& stacks_all, int M, int N, int K, int entry_X, int entry_Y, int exit_X, int exit_Y){
     // We need to reverse the stack and write into the file
    
     Stack<Cell<int>>* askedStack = stacks_all.getStackAtIndex(K);
@@ -85,7 +85,7 @@ bool CheckUVneighbor(Cell<int>*** maze, int K, int M, int N, Cell<int> c){
 }
 
 // Select a neighbor cell
-Cell<int> SelectNeighbor(Cell<int>***& maze, int K, int M, int N, Cell<int>& current, bool isRoadChoose){
+Cell<int> SelectNeighbor(Cell<int>***& maze, int K, int M, int N, Cell<int>& current){
     Cell<int> candidate; // Our candidate for next
     mt19937 engine(random_device{}());
     uniform_int_distribution<int> dist(0, 3);
@@ -100,20 +100,13 @@ Cell<int> SelectNeighbor(Cell<int>***& maze, int K, int M, int N, Cell<int>& cur
         }
 
         int random = dist(engine);
-        bool checkOption; // Control mechanism if its for road search or maze creation
         if(selected[random] == 0){
             selected[random] = 1;
             switch (random){
                 case 0:
                     // Up
                     // Check if the cell on the maze
-                    if(!isRoadChoose){
-                        checkOption = current.row-1 >= 0;
-                    } else{
-                        checkOption = current.U == 0;
-                    }
-
-                    if (checkOption && maze[K][current.row-1][current.col].visited == 0){
+                    if (current.row-1 >= 0 && maze[K][current.row-1][current.col].visited == 0){
                         
                         if(DEBUG){
                             cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
@@ -122,38 +115,28 @@ Cell<int> SelectNeighbor(Cell<int>***& maze, int K, int M, int N, Cell<int>& cur
                         }
                         // Mark next cell in the maze as visited and break - Down Wall
                         maze[K][current.row-1][current.col].visited =1;
-                        if(!isRoadChoose){
-                            maze[K][current.row-1][current.col].D = 0;
-                            // Break current cell's - Up Wall
-                            current.U = 0;
-                        }
+                        maze[K][current.row-1][current.col].D = 0;
+                        // Break current cell's - Up Wall
+                        current.U = 0;
+
                         return maze[K][current.row-1][current.col];
                     }
                     break;
                 case 1:
                     // Down
                     // Check if the cell on the maze
-                    if(!isRoadChoose){
-                        checkOption = current.row+1 < M;
-                    } else{
-                        checkOption = current.D == 0;
-                    } 
-
-                    if (checkOption && maze[K][current.row+1][current.col].visited == 0){
+                    if (current.row+1 < M && maze[K][current.row+1][current.col].visited == 0){
 
                         if(DEBUG) {
                             cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
                             << "-->" <<  "[" << current.row+1 << "]["<< current.col <<"] = {" 
                             << maze[K][current.row+1][current.col].row <<"," << maze[K][current.row+1][current.col].col << "} " << endl;
                         }
-
                         // Mark next cell in the maze as visited and break - Up Wall
                         maze[K][current.row+1][current.col].visited =1;
-                        if(!isRoadChoose){
-                            maze[K][current.row+1][current.col].U = 0;
-                            // Break current cell's - Down Wall
-                            current.D = 0;
-                        }
+                        maze[K][current.row+1][current.col].U = 0;
+                        // Break current cell's - Down Wall
+                        current.D = 0;
 
                         return maze[K][current.row+1][current.col];
                     }
@@ -161,12 +144,7 @@ Cell<int> SelectNeighbor(Cell<int>***& maze, int K, int M, int N, Cell<int>& cur
                 case 2:
                     // Right
                     // Check if the cell on the maze
-                    if(!isRoadChoose){
-                        checkOption = current.col+1 < N;
-                    } else{
-                        checkOption = current.R == 0;
-                    }
-                    if (checkOption && maze[K][current.row][current.col+1].visited == 0){
+                    if (current.col+1 < N && maze[K][current.row][current.col+1].visited == 0){
 
                         if(DEBUG){
                             cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
@@ -175,23 +153,17 @@ Cell<int> SelectNeighbor(Cell<int>***& maze, int K, int M, int N, Cell<int>& cur
                         }
                         // Mark next cell in the maze as visited and break - Left Wall
                         maze[K][current.row][current.col+1].visited =1;
-                        if(!isRoadChoose){
-                            maze[K][current.row][current.col+1].L = 0;
-                            // Break current cell's - Right Wall
-                            current.R = 0;
-                        }
+                        maze[K][current.row][current.col+1].L = 0;
+                        // Break current cell's - Right Wall
+                        current.R = 0;
+                        
                         return maze[K][current.row][current.col+1];
                     }
                     break;
                 case 3:
                     // Left
                     // Check if the cell on the maze
-                    if(!isRoadChoose){
-                        checkOption = current.col-1 >= 0;
-                    } else{
-                        checkOption = current.L == 0;
-                    }
-                    if (checkOption && maze[K][current.row][current.col-1].visited == 0){
+                    if (current.col-1 >= 0 && maze[K][current.row][current.col-1].visited == 0){
 
                         if(DEBUG){
                             cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
@@ -200,11 +172,10 @@ Cell<int> SelectNeighbor(Cell<int>***& maze, int K, int M, int N, Cell<int>& cur
                         }
                         // Mark next cell in the maze as visited and break - Right Wall
                         maze[K][current.row][current.col-1].visited =1;
-                        if(!isRoadChoose){
-                            maze[K][current.row][current.col-1].R = 0;
-                            // Break current cell's - Left Wall
-                            current.L = 0;
-                        }
+                        maze[K][current.row][current.col-1].R = 0;
+                        // Break current cell's - Left Wall
+                        current.L = 0;
+
                         return maze[K][current.row][current.col-1];
                     }
                     break;
@@ -252,7 +223,7 @@ void CreateMaze(ListOfStacks<Cell<int>>& stacks_all, Cell<int>***& maze, int K, 
             Cell<int> current = askedStack->topAndPop();
             Cell<int> candidate;
 
-            candidate = SelectNeighbor(maze, k, M, N, current, false);
+            candidate = SelectNeighbor(maze, k, M, N, current);
             if(candidate == current){
                 continue;
             }
@@ -281,7 +252,7 @@ void CreateMaze(ListOfStacks<Cell<int>>& stacks_all, Cell<int>***& maze, int K, 
             if(!isDead){
                 continue;
             } else{
-                candidate = SelectNeighbor(maze, k, M, N, current, false);
+                candidate = SelectNeighbor(maze, k, M, N, current);
                 if(candidate == current){
                     continue;
                 }
@@ -303,7 +274,86 @@ void CreateMaze(ListOfStacks<Cell<int>>& stacks_all, Cell<int>***& maze, int K, 
     }
 }
 
-// Create the path
+
+Cell<int> ChooseWall(Cell<int>***& maze, int K, int M, int N, Cell<int>& current){
+    Cell<int> candidate;
+    mt19937 engine(random_device{}());
+    uniform_int_distribution<int> dist(0, 3);
+    int selected[4] = {0, 0, 0, 0};
+    // Index of ->>> 0 : Up, 1 : Down, 2 : Right, 3 : Left
+    while(true){
+        if(selected[0] == 1 && selected[1] == 1 && selected[2] == 1 && selected[3] == 1){
+            // All numbers are selected
+            return current; // We do not need to return it since we pass by reference
+            // However, I built my algorithm like this, if current returned, it means there is no neighbor
+        }
+
+        int random = dist(engine);
+        if(selected[random] == 0){
+            selected[random] = 1;
+
+            switch (random){
+                case 0:
+                    // Up
+                    // First check if the cell on the maze
+                    if (current.U == 0 && maze[K][current.row-1][current.col].visited == 0){
+
+                        cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
+                        << "-->" <<  "[" << current.row-1 << "]["<< current.col <<"] = {" 
+                        << maze[K][current.row-1][current.col].row <<"," << maze[K][current.row-1][current.col].col << "} " << endl;
+
+                        maze[K][current.row-1][current.col].visited =1;
+                        return maze[K][current.row-1][current.col];
+                    }
+                    break;
+                case 1:
+                    // Down
+                    // First check if the cell on the maze
+                    if (current.D == 0 && maze[K][current.row+1][current.col].visited == 0){
+                        cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
+                        << "-->" <<  "[" << current.row+1 << "]["<< current.col <<"] = {" 
+                        << maze[K][current.row+1][current.col].row <<"," << maze[K][current.row+1][current.col].col << "} " << endl;
+
+                        maze[K][current.row+1][current.col].visited =1;
+                        return maze[K][current.row+1][current.col];
+                    }
+                    break;
+                case 2:
+                    // Right
+                    // First check if the cell on the maze
+                    if (current.R == 0 && maze[K][current.row][current.col+1].visited == 0){
+
+                        cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
+                        << "-->" <<  "[" << current.row << "]["<< current.col+1 <<"] = {" 
+                        << maze[K][current.row][current.col+1].row <<"," << maze[K][current.row][current.col+1].col << "} " << endl;
+
+                        maze[K][current.row][current.col+1].visited =1;
+                        
+                        return maze[K][current.row][current.col+1];
+                    }
+                    break;
+                case 3:
+                    // Left
+                    // First check if the cell on the maze
+                    if (current.L == 0 && maze[K][current.row][current.col-1].visited == 0){
+                        cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
+                        << "-->" <<  "[" << current.row << "]["<< current.col-1 <<"] = {" 
+                        << maze[K][current.row][current.col-1].row <<"," << maze[K][current.row][current.col-1].col << "} " << endl;
+
+                        maze[K][current.row][current.col-1].visited =1;
+                        return maze[K][current.row][current.col-1];
+                    }
+                    break;
+            
+            }
+        } else {
+            continue;
+        }
+    
+    }
+
+}
+
 void CreatePath(ListOfStacks<Cell<int>>& stacks_all, Cell<int>***& maze, int maze_id, 
             int M, int N, int entry_X, int entry_Y, int exit_X, int exit_Y){
     
@@ -337,7 +387,7 @@ void CreatePath(ListOfStacks<Cell<int>>& stacks_all, Cell<int>***& maze, int maz
         Cell<int> current = askedStack->topAndPop(); // Get the current cell
         Cell<int> candidate;
         // Idx;      0: Up, 1: Down, 2: Right, 3: Left
-        candidate = SelectNeighbor(maze, maze_id-1, M, N, current, true);
+        candidate = ChooseWall(maze, maze_id-1, M, N, current);
 
         if(DEBUG){
             cout << "Current (" <<current.x <<"," << current.y << ")" <<"=" <<"[" << current.row << "]["<< current.col << "]"<< endl;
@@ -428,7 +478,7 @@ int main() {
     CreatePath(stacks_all, maze, maze_id, M, N, entry_X, entry_Y, exit_X, exit_Y);
 
     // Save the road
-    SaveRoad(stacks_all, maze_id-1, entry_X, entry_Y, exit_X, exit_Y);
+    SaveRoad(stacks_all, M, N, maze_id-1, entry_X, entry_Y, exit_X, exit_Y);
 
     /// DELETE MAZES AND STACKS
 
