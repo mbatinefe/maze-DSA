@@ -1,4 +1,5 @@
-// We will implement a stack and struct using a linked list data structure
+// Mustafa Batin EFE - 29272
+// CS300 - Data Structures - Homework 1
 
 #include <iostream>
 #include <exception>
@@ -15,6 +16,7 @@ class Underflow : public exception
         }
 };
 
+// Define Cell struct
 template <typename Object>
 struct Cell {
     Object x, y;
@@ -83,71 +85,6 @@ template <class Object>
             ListNode *topOfStack;
     };
 
-
-// Lets implement list of stacks
-// We will use linked list to store the stacks
-template <class Object>
-class ListOfStacks
-{
-    public:
-        // We need consturct with given number of stacks
-        ListOfStacks(int numStacks) : head(nullptr) {
-            for (int i = 0; i < numStacks; i++) {
-                addStacktoEnd();
-            }
-        }
-
-        ~ListOfStacks() {
-            while (head != nullptr) {
-                StackNode *temp = head;
-                head = head->next;
-                delete temp;
-            }
-        }
-
-        Stack<Object>* getStackAtIndex(int index) {
-            StackNode *current = head;
-            int count = 0;
-            // Traverse the list until the desired index is reached or the end of the list
-            while (current != nullptr && count < index) {
-                current = current->next;
-                count++;
-            }
-            // Check if we found the stack at the given index
-            if (current == nullptr) {
-                cout<< "Stack at index " << index << " DNE." << endl;
-                return nullptr;
-            }
-            return current->stack;
-        }
-
-    private:
-        struct StackNode {
-            Stack<Object> *stack;
-            StackNode *next;
-            StackNode(StackNode *n = nullptr) {
-                stack = new Stack<Object>();
-                next = n;
-            }
-            ~StackNode() {
-                delete stack;
-            }
-        };
-        StackNode *head;
-
-        void addStacktoEnd() {
-            StackNode *newNode = new StackNode();
-            if (head == nullptr) {
-                head = newNode;
-            } else {
-                StackNode *current = head;
-                while (current->next != nullptr) {
-                    current = current->next;
-                }
-                current->next = newNode;
-            }
-        }
-};
 
 // Consturcter
 template <class Object>
@@ -252,6 +189,72 @@ Stack<Object>::~Stack()
 {
     makeEmpty();
 }
+
+
+// Lets implement list of stacks
+// We will use linked list to store the stacks
+template <class Object>
+class ListOfStacks
+{
+    public:
+        // We need consturct with given number of stacks
+        ListOfStacks(int numStacks) : head(nullptr) {
+            for (int i = 0; i < numStacks; i++) {
+                addStacktoEnd();
+            }
+        }
+
+        ~ListOfStacks() {
+            while (head != nullptr) {
+                StackNode *temp = head;
+                head = head->next;
+                delete temp;
+            }
+        }
+
+        Stack<Object>* getStackAtIndex(int index) {
+            StackNode *current = head;
+            int count = 0;
+            // Traverse the list until the desired index is reached or the end of the list
+            while (current != nullptr && count < index) {
+                current = current->next;
+                count++;
+            }
+            // Check if we found the stack at the given index
+            if (current == nullptr) {
+                cout<< "Stack at index " << index << " DNE." << endl;
+                return nullptr;
+            }
+            return current->stack;
+        }
+
+    private:
+        struct StackNode {
+            Stack<Object> *stack;
+            StackNode *next;
+            StackNode(StackNode *n = nullptr) {
+                stack = new Stack<Object>();
+                next = n;
+            }
+            ~StackNode() {
+                delete stack;
+            }
+        };
+        StackNode *head;
+
+        void addStacktoEnd() {
+            StackNode *newNode = new StackNode();
+            if (head == nullptr) {
+                head = newNode;
+            } else {
+                StackNode *current = head;
+                while (current->next != nullptr) {
+                    current = current->next;
+                }
+                current->next = newNode;
+            }
+        }
+};
 
 
 

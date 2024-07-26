@@ -412,7 +412,6 @@ int main() {
     }
 
     cout << "All mazes are generated." << endl << endl;
-
     // Now, we will ask for entry, exit points and maze ID
     int maze_id;
     cout << "Enter a maze ID between 1 to " + to_string(K) + " inclusive to find a path: ";
@@ -430,6 +429,16 @@ int main() {
     // Save the road
     SaveRoad(stacks_all, maze_id-1, entry_X, entry_Y, exit_X, exit_Y);
 
-    /// DELETE MAZES AND STACKS
+    // Steak lists and its stacks will be deleted automatically, since we are out of scope (destructor will be called)
+
+    // Lets clear the maze
+    for (int k = 0; k < K; k++) {
+        for (int i = 0; i < M; i++) {
+            delete[] maze[k][i];
+        }
+        delete[] maze[k];
+    }
+    delete[] maze;
+    maze = nullptr;
 
 }    
