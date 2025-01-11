@@ -1,8 +1,3 @@
-// Mustafa Batin EFE - 29272
-// CS300 - Data Structures - Homework 1
-
-#define DEBUG false // True if you want to see the debug messages
-
 #include <iostream>
 #include <string>
 #include <random>
@@ -14,8 +9,8 @@ using namespace std;
 
 // Lets save the maze
 void SaveMaze(Cell<int>*** maze, int M, int N, int K){
-    for (int k = 0; k < K; k++){
 
+    for (int k = 0; k < K; k++){
         // Create the file
         string filename = "maze_" + to_string(k+1) + ".txt";
         ofstream file(filename);
@@ -76,10 +71,10 @@ bool CheckUVneighbor(Cell<int>*** maze, int K, int M, int N, Cell<int> c){
     if(c.row-1 >= 0 && maze[K][c.row-1][c.col].visited == 0){isThereNeighbor=true;}
 
     if(isThereNeighbor){
-        // cout <<  "->>>> There exist a neighbor!!!!! " << endl << endl;
+        // There exist a neighbor!
         return true;
     } else{
-        // cout << "->>>> There is no neighbor! " << endl << endl;
+        // There is no neighbor!
         return false;
     }
 }
@@ -116,12 +111,6 @@ Cell<int> SelectNeighbor(Cell<int>***& maze, int K, int M, int N, Cell<int>& cur
                     }
 
                     if (checkOption && maze[K][current.row-1][current.col].visited == 0){
-                        
-                        if(DEBUG){
-                            cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
-                            << "-->" <<  "[" << current.row-1 << "]["<< current.col <<"] = {" 
-                            << maze[K][current.row-1][current.col].row <<"," << maze[K][current.row-1][current.col].col << "} " << endl;
-                        }
                         // Mark next cell in the maze as visited and break - Down Wall
                         maze[K][current.row-1][current.col].visited =1;
                         if(!isRoadChoose){ // If it is for maze creation
@@ -142,13 +131,6 @@ Cell<int> SelectNeighbor(Cell<int>***& maze, int K, int M, int N, Cell<int>& cur
                     } 
 
                     if (checkOption && maze[K][current.row+1][current.col].visited == 0){
-
-                        if(DEBUG) {
-                            cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
-                            << "-->" <<  "[" << current.row+1 << "]["<< current.col <<"] = {" 
-                            << maze[K][current.row+1][current.col].row <<"," << maze[K][current.row+1][current.col].col << "} " << endl;
-                        }
-
                         // Mark next cell in the maze as visited and break - Up Wall
                         maze[K][current.row+1][current.col].visited =1;
                         if(!isRoadChoose){ // If it is for maze creation
@@ -169,12 +151,6 @@ Cell<int> SelectNeighbor(Cell<int>***& maze, int K, int M, int N, Cell<int>& cur
                         checkOption = current.R == 0;
                     }
                     if (checkOption && maze[K][current.row][current.col+1].visited == 0){
-
-                        if(DEBUG){
-                            cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
-                            << "-->" <<  "[" << current.row << "]["<< current.col+1 <<"] = {" 
-                            << maze[K][current.row][current.col+1].row <<"," << maze[K][current.row][current.col+1].col << "} " << endl;
-                        }
                         // Mark next cell in the maze as visited and break - Left Wall
                         maze[K][current.row][current.col+1].visited =1;
                         if(!isRoadChoose){ // If it is for maze creation
@@ -194,12 +170,6 @@ Cell<int> SelectNeighbor(Cell<int>***& maze, int K, int M, int N, Cell<int>& cur
                         checkOption = current.L == 0;
                     }
                     if (checkOption && maze[K][current.row][current.col-1].visited == 0){
-
-                        if(DEBUG){
-                            cout << "[" << current.row << "]["<< current.col <<"] = {" << current.x <<"," << current.y << "} "
-                            << "-->" <<  "[" << current.row << "]["<< current.col-1 <<"] = {" 
-                            << maze[K][current.row][current.col-1].row <<"," << maze[K][current.row][current.col-1].col << "} " << endl;
-                        }
                         // Mark next cell in the maze as visited and break - Right Wall
                         maze[K][current.row][current.col-1].visited =1;
                         if(!isRoadChoose){ // If it is for maze creation
@@ -240,8 +210,6 @@ void CreateMaze(ListOfStacks<Cell<int>>& stacks_all, Cell<int>***& maze, int K, 
     }
 
     for(int k=0; k <K; k++){
-
-        cout << "Generating maze " << k+1 << endl;
         // Get the stack "k"
         Stack<Cell<int>>* askedStack = stacks_all.getStackAtIndex(k); 
         
@@ -343,11 +311,6 @@ void CreatePath(ListOfStacks<Cell<int>>& stacks_all, Cell<int>***& maze, int maz
         // Idx;      0: Up, 1: Down, 2: Right, 3: Left
         candidate = SelectNeighbor(maze, maze_id-1, M, N, current, true);
 
-        if(DEBUG){
-            cout << "Current (" <<current.x <<"," << current.y << ")" <<"=" <<"[" << current.row << "]["<< current.col << "]"<< endl;
-            cout << "Candidate (" <<candidate.x <<"," << candidate.y << ")" <<"=" <<"[" << candidate.row << "]["<< candidate.col << "]"<< endl;
-        }
-
         if(candidate == current){
             // Situtation where it is dead end, so backtrack
             continue;
@@ -388,29 +351,6 @@ int main() {
     // Save the maze
     SaveMaze(maze, M, N, K);
     
-    if(DEBUG){
-        // Print the maze
-        for (int k = 0; k < K; k++) {
-            cout << "Maze " << k+1 << endl;
-            for (int i = 0; i < M; i++) {
-                for (int j = 0; j < N; j++) {
-                    cout << "x=" << maze[k][i][j].x << " y=" << maze[k][i][j].y << " l=" << maze[k][i][j].L << " r=" << maze[k][i][j].R << " u=" << maze[k][i][j].U << " d=" << maze[k][i][j].D << endl;
-                }
-            }
-        }
-        for (int k = 0; k < K; k++) {
-            for (int i = 0; i < M; i++) {
-                for (int j = 0; j < N; j++) {
-                    cout << "(" << maze[k][i][j].x << "," << maze[k][i][j].y << ")" << "&[" << maze[k][i][j].row << "," << maze[k][i][j].col << "] "
-
-                    << maze[k][i][j].U << maze[k][i][j].D << maze[k][i][j].R << maze[k][i][j].L << " " << maze[k][i][j].visited << " | ";
-                }
-                cout << endl;
-            }
-            cout << endl;
-
-        }
-    }
     cout << "All mazes are generated." << endl << endl;
 
     int maze_id;

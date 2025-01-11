@@ -1,6 +1,3 @@
-// Mustafa Batin EFE - 29272
-// CS300 - Data Structures - Homework 1
-
 #include <iostream>
 #include <exception>
 
